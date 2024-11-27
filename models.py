@@ -20,6 +20,11 @@ def Sigmoid(x):
 def SoftMax(x):
     return np.exp(x)/np.sum(np.exp(x),axis = 1,keepdims=True)
 
+def onehot_coder(Y):
+    n_classes = np.max(Y) + 1
+    y_hot = np.eye(n_classes,dtype=int)[Y]
+    return y_hot.squeeze()
+    
 
 def initialize_parameters(input_size,hidden_layer1_size,hidden_layer2_size, output_size):
     """Initialize 
@@ -31,7 +36,9 @@ def initialize_parameters(input_size,hidden_layer1_size,hidden_layer2_size, outp
         output_size (_type_): _description_
 
     Returns:
-        _type_: _description_
+        weights : 
+            W1 (784,hidden_layer1_size)
+            b1 (1,hidden_layer1_size)
     """    
     # Initialize w small enough -> avoid 
     weights = {
@@ -49,7 +56,7 @@ def forward_prop(X,weights,return_back = 'forward'):
     """Forward_Propagation
 
     Args:
-        X (_type_): _description_
+        X (_type_): (60000,784)
         weights (_type_): _description_
         return_back (str, optional): _description_. Defaults to 'forward'.
 
@@ -57,7 +64,7 @@ def forward_prop(X,weights,return_back = 'forward'):
         _type_: _description_
     """    
     #Input Layer 
-    Z1 = np.dot(X, weights['W1']) + weights['b1']  #X in shape(m, 28 x 28) -> W(28x28,hidden_layers_1)
+    Z1 = np.dot(X, weights['W1']) + weights['b1']  #X in shape(m, 784) -> W(784,hidden_layers_1)
     A1 = ReLU(Z1)
     #Hidden Layer 
     Z2 = np.dot(A1,weights['W2']) + weights['b2']
@@ -74,11 +81,8 @@ def forward_prop(X,weights,return_back = 'forward'):
         return A3
     
 def compute_cost(AL,Y):
-    m = Y.shape[1] ## Or Shape [0] Depends on the Data Set.
-
-    cost = -1/m * np.sum(Y * np.log(AL) + (1-Y) * np.log(1-AL)) 
-                         
-    cost = np.squeeze(cost)
+    m = Y.shape[0] ## Or Shape [0] Depends on the Data Set.
+    return -np.sum(Y * np.log(AL + 1e-8)) / m 
 
 def backward_prop(X,Y,foward_data,weights):
     """_summary_
@@ -100,7 +104,7 @@ def backward_prop(X,Y,foward_data,weights):
     #Process
     #Output Layer
     dZ3 = A3 - Y # Derivative of cost regarding Z3 
-    gradient_W3 = np.dot(dZ3, A2.T) / m 
+    gradient_W3 = np.dot(A2.T,dZ3) / m 
     gradient_b3 = np.sum(dZ3, axis = 0, keepdims= True) / m
 
     #Second Layer
@@ -147,13 +151,69 @@ def update_weights(weights, gradients, learning_rate):
 
 # Prediction Function 
 def predict(X,weights):
+    """_summary_
+
+    Args:
+        X (_type_): _description_
+        weights (_type_): _description_
+
+    Returns:
+        np
+    """    
     A3 = forward_prop(X,weights,return_back = 'predict')
     return np.argmax(A3,axis = 1)
 
-def train():
-    pass 
 
-def
+def train(X,Y,input_size, hidden_layer1_size, hidden_layer2_size, output_size, learning_rate, epochs, batch_size, weights):
+    #Inputs Data
+    m = X.shape[0]
+    Y = onehot_coder(Y)
+    cost = []
+    epoch_list = []
+
+    for epoch in range(epochs):
+        indices = np.random.permutation(m)
+        X_shuffled = X[indices]
+        Y_shuffled = Y[indices]
+
+        # Using Mini-Batch:
+        for i in range(0,m,batch_size):
+            #Batch Sample
+            X_batch = X_shuffled[i:i+batch_size] #i + batch_size - i = batch_size
+            Y_batch = Y_shuffled[i:i+batch_size]
+            # Forward propagation with the batch sample
+            forward_data = forward_prop(X_batch,weights)
+            # Perform backpropagation
+            gradients = backward_prop(X_batch,Y_batch,forward_data,weights)
+            # Update weights
+            weights = update_weights(weights,gradients,learning_rate)
+
+        #Calculate cost for each iterations:
+        forward_data_full = forward_prop(X,weights)
+        _,_,_,_,_, A3 = forward_data_full
+        epoch_cost = compute_cost(A3,Y)
+        #Print cost for each multiple of 10 epoch count:
+        if epoch % 10 == 0:
+            print(f'Epoch {epoch},cost: {epoch_cost}')
+            cost.append(epoch_cost)
+            epoch.append(epoch)
+    
+    return weights
+
+
+    
+
+
+
+    
+
+
+
+
+
+
+    
+
 
     
 

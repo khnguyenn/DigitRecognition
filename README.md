@@ -2,13 +2,13 @@
 
 The Handwritten Digit Recognition is a project developed to classify digits drawn by the user in an interface.
 
+he Training and Calculations of The Algorithm were implemented by Numpy Library.
+
+The main objective of this project is to gain an in-depth understanding of how a neural network functions.
+
 
 ### The Data Set 
 The Data Set : MNIST 
-
-The Training and Calculations of The Algorithm were implemented by Numpy Library.
-
-The main objective of this project is to gain an in-depth understanding of how a neural network functions.
 
 ## How it works
 ### Algorithm
