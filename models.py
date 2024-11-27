@@ -201,12 +201,6 @@ def train(X,Y,input_size, hidden_layer1_size, hidden_layer2_size, output_size, l
     return weights
 
 
-    
-
-
-
-    
-
 
 
 
